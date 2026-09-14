@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texas Weather & Power Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9;}
+        .chart-container { width: 80%; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+    </style>
+</head>
+<body>
+
+    <h1>⚡ Texas Weather & Power Demand Dashboard 🌡️</h1>
+    <p>Real-time correlation between temperature and power demand.</p>
+
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        // ★ Make sure to add your exact API path here (e.g., /api/forecast)
+        const apiUrl = 'https://texas-weather-power-project.onrender.com/'; 
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const labels = data.map(item => item.time);
+                const temps = data.map(item => item.temperature);
+                const powers = data.map(item => item.power_demand);
+
+                const ctx = document.getElementById('myChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Temperature (F)', data: temps, borderColor: 'red', yAxisID: 'y' },
+                            { label: 'Power Demand (MWh)', data: powers, borderColor: 'blue', yAxisID: 'y1' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Temperature (F)'} },
+                            y1: { type: 'linear', display: true, position: 'right', title: {display: true, text: 'Power Demand (MWh)'} }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+</body>
+</html>
