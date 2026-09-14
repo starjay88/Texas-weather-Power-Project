@@ -1,0 +1,32 @@
+name: Daily Texas Data ETL
+
+on:
+  schedule:
+    - cron: '0 8 * * *' # 매일 아침 8시(UTC 기준)에 알아서 실행
+  workflow_dispatch: # 수동으로 버튼 눌러서 당장 실행해볼 수 있게 하는 마법의 옵션
+
+jobs:
+  run-etl:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 저장소 코드 가져오기
+      uses: actions/checkout@v3
+
+    - name: 파이썬 설치
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 필요한 도구(라이브러리) 설치
+      run: |
+        pip install requests pandas supabase python-dotenv
+
+    - name: 파이썬 ETL 스크립트 실행!
+      env: # 아까 깃허브 금고에 넣은 비밀정보를 여기서 쏙쏙 뽑아옵니다
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        MY_EMAIL: ${{ secrets.MY_EMAIL }}
+      # 파일 이름에 띄어쓰기가 있어서 따옴표로 묶어줍니다
+      run: python "import requests.py"
