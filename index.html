@@ -14,36 +14,36 @@
 
     <h1>⚡ Texas Weather & Power Demand Dashboard 🌡️</h1>
     <p>Real-time correlation between temperature and power demand.</p>
+    <p style="color: gray; font-size: 0.9em;">* All times are displayed in Texas Local Time (Central Time).</p>
 
     <div class="chart-container">
         <canvas id="myChart"></canvas>
     </div>
 
     <script>
-        // 1. 백엔드 API 주소 (정확한 /api/forecast 경로)
         const apiUrl = 'https://texas-weather-power-project.onrender.com/api/forecast'; 
 
         fetch(apiUrl)
             .then(response => response.json())
             .then(responseData => {
-                // 2. 포장지(data) 한 겹 벗기기
                 const realData = responseData.data; 
 
-                // 3. 시간 예쁘게 다듬기 (UTC -> 현지 시간 변환 및 MM/DD HH:MM 포맷)
+                // 3. 시간 다듬기 (어디서 접속하든 무조건 텍사스 시간으로 고정!)
                 const labels = realData.map(item => {
                     const dt = new Date(item.time); 
-                    const month = dt.getMonth() + 1;
-                    const date = dt.getDate();
-                    const hours = String(dt.getHours()).padStart(2, '0');
-                    const minutes = String(dt.getMinutes()).padStart(2, '0');
-                    return `${month}/${date} ${hours}:${minutes}`;
+                    return dt.toLocaleString('en-US', {
+                        timeZone: 'America/Chicago', // 텍사스 시간대 강제 적용
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false // 24시간제 표시
+                    });
                 });
                 
-                // 4. 온도와 전력 데이터 가져오기 (전력 컬럼 이름 electricity_demand_mwh 적용!)
                 const temps = realData.map(item => item.temperature);
                 const powers = realData.map(item => item.electricity_demand_mwh);
 
-                // 5. 차트 그리기
                 const ctx = document.getElementById('myChart').getContext('2d');
                 new Chart(ctx, {
                     type: 'line',
@@ -57,6 +57,11 @@
                     options: {
                         responsive: true,
                         scales: {
+                            // X축에 텍사스 시간 기준이라는 제목표 추가
+                            x: { 
+                                display: true, 
+                                title: { display: true, text: 'Time (Texas Time, CT)', font: {weight: 'bold'} } 
+                            },
                             y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Temperature (F)'} },
                             y1: { type: 'linear', display: true, position: 'right', title: {display: true, text: 'Power Demand (MWh)'} }
                         }
