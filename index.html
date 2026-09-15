@@ -3,58 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Texas Weather & Power Dashboard</title>
+    <title>Texas Weather & Grid Open Data Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9;}
         .chart-container { width: 80%; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+        #alertBanner { width: 80%; margin: 20px auto; padding: 15px; border-radius: 8px; font-size: 1.1em; display: none; }
+        
+        /* 새로 추가된 스타일: 버튼과 메타데이터 표 */
+        .btn-download { background-color: #0056b3; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+        .btn-download:hover { background-color: #004494; }
+        .metadata-table { width: 80%; margin: 30px auto; border-collapse: collapse; font-size: 0.9em; text-align: left; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;}
+        .metadata-table th, .metadata-table td { padding: 12px; border-bottom: 1px solid #ddd; }
+        .metadata-table th { background-color: #f8f9fa; font-weight: bold; color: #333;}
+        .footer-section { margin-top: 30px; font-size: 0.9em; color: #555; background: white; padding: 20px; width: 80%; margin: 30px auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+        .footer-section a { color: #0056b3; text-decoration: none; font-weight: bold;}
+        .footer-section a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <h1>⚡ Texas Weather & Power Demand Dashboard 🌡️</h1>
-    <p>Real-time correlation between temperature and power demand.</p>
-    <p style="color: gray; font-size: 0.9em;">* All times are displayed in Texas Local Time (Central Time).</p>
+    <!-- 1. 제목 업그레이드 -->
+    <h1>⚡ Texas ERCOT Grid & Weather Open Data Portal 🌡️</h1>
+    <p>Real-time ERCOT grid stress and weather disaster monitoring system.</p>
+    
+    <!-- 2. CSV 다운로드 버튼 추가 -->
+    <button class="btn-download" onclick="downloadCSV()">📥 Download Raw Data (CSV)</button>
 
+    <!-- 재난 경보 배너 -->
+    <div id="alertBanner"></div>
+
+    <!-- 차트 -->
+    <p style="color: gray; font-size: 0.85em; text-align: right; width: 80%; margin: 0 auto;">* All times are displayed in Texas Local Time (Central Time).</p>
     <div class="chart-container">
         <canvas id="myChart"></canvas>
     </div>
 
-    <!-- 데이터 출처 명시 -->
-    <div style="margin-top: 30px; font-size: 0.85em; color: #777;">
-        <p><strong>Data Sources:</strong></p>
-        <p>Weather data provided by the <a href="https://www.weather.gov/documentation/services-web-api" target="_blank" style="color: #555;">National Weather Service (NWS) API</a>.</p>
-        <p>Power demand data provided by the <a href="https://www.eia.gov/opendata/" target="_blank" style="color: #555;">U.S. Energy Information Administration (EIA) API</a>.</p>
+    <!-- 3. 데이터 사전(Metadata) 표 추가 -->
+    <table class="metadata-table">
+        <thead>
+            <tr>
+                <th>Column Name</th>
+                <th>Description</th>
+                <th>Data Type</th>
+                <th>Unit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Time</td>
+                <td>Timestamp of the recorded data</td>
+                <td>Datetime (ISO 8601)</td>
+                <td>UTC / CT</td>
+            </tr>
+            <tr>
+                <td>Temperature</td>
+                <td>Surface air temperature in Texas</td>
+                <td>Float</td>
+                <td>Fahrenheit (°F)</td>
+            </tr>
+            <tr>
+                <td>Electricity Demand</td>
+                <td>Total ERCOT power grid demand</td>
+                <td>Integer</td>
+                <td>Megawatt-hours (MWh)</td>
+            </tr>
+            <tr>
+                <td>Weather Condition</td>
+                <td>Short text description of weather (e.g., Mostly Clear)</td>
+                <td>String</td>
+                <td>-</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 4. 출처 및 API 개발자 문서(Swagger) 링크 추가 -->
+    <div class="footer-section">
+        <p style="margin-bottom: 15px;"><strong>📊 Data Sources & Developer Tools</strong></p>
+        <p>☁️ Weather: <a href="https://www.weather.gov/documentation/services-web-api" target="_blank">National Weather Service (NWS) API</a></p>
+        <p>⚡ Power: <a href="https://www.eia.gov/opendata/" target="_blank">U.S. Energy Information Administration (EIA) API</a></p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+        <p>👨‍💻 <strong>API Access:</strong> <a href="https://texas-weather-power-project.onrender.com/docs" target="_blank">Open Developer API Docs (Swagger UI)</a></p>
     </div>
 
     <script>
-        // 1. 정확한 백엔드 API 주소
         const apiUrl = 'https://texas-weather-power-project.onrender.com/api/forecast'; 
+        let globalData = []; // CSV 다운로드를 위해 데이터를 임시 저장할 공간
 
         fetch(apiUrl)
             .then(response => response.json())
             .then(responseData => {
-                // 2. 포장지(data) 한 겹 벗기기
                 const realData = responseData.data; 
+                globalData = realData; // 데이터를 변수에 저장해둡니다.
 
-                // 3. 시간 다듬기 (어디서 접속하든 무조건 텍사스 시간으로 고정!)
                 const labels = realData.map(item => {
                     const dt = new Date(item.time); 
                     return dt.toLocaleString('en-US', {
-                        timeZone: 'America/Chicago',
-                        month: 'numeric',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false
+                        timeZone: 'America/Chicago', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
                     });
                 });
                 
-                // 4. 온도와 전력 데이터 (DB 컬럼 이름 정확히 매칭)
                 const temps = realData.map(item => item.temperature);
                 const powers = realData.map(item => item.electricity_demand_mwh);
 
-                // 5. 차트 그리기
+                // 재난 감지 로직
+                const maxTemp = Math.max(...temps);
+                const minTemp = Math.min(...temps);
+                const maxPower = Math.max(...powers);
+                const alertBanner = document.getElementById('alertBanner');
+                
+                alertBanner.style.display = 'block';
+
+                if (maxTemp >= 98 || minTemp <= 32) {
+                    alertBanner.style.backgroundColor = '#ffebee';
+                    alertBanner.style.color = '#c62828';
+                    alertBanner.style.border = '2px solid #c62828';
+                    alertBanner.innerHTML = `🚨 <strong>DISASTER WARNING:</strong> Extreme weather detected (Peak: ${maxTemp}°F / Low: ${minTemp}°F). High risk of ERCOT grid overload!`;
+                } else if (maxPower >= 80000) {
+                    alertBanner.style.backgroundColor = '#fff3e0';
+                    alertBanner.style.color = '#e65100';
+                    alertBanner.style.border = '2px solid #e65100';
+                    alertBanner.innerHTML = `⚠️ <strong>GRID STRESS ALERT:</strong> High power demand anticipated (${maxPower.toLocaleString()} MWh). Grid is under heavy load.`;
+                } else {
+                    alertBanner.style.backgroundColor = '#e8f5e9';
+                    alertBanner.style.color = '#2e7d32';
+                    alertBanner.style.border = '2px solid #2e7d32';
+                    alertBanner.innerHTML = `✅ <strong>SYSTEM NORMAL:</strong> Weather and ERCOT power grid conditions are currently stable.`;
+                }
+
+                // 차트 렌더링
                 const ctx = document.getElementById('myChart').getContext('2d');
                 new Chart(ctx, {
                     type: 'line',
@@ -68,10 +145,7 @@
                     options: {
                         responsive: true,
                         scales: {
-                            x: { 
-                                display: true, 
-                                title: { display: true, text: 'Time (Texas Time, CT)', font: {weight: 'bold'} } 
-                            },
+                            x: { display: true, title: { display: true, text: 'Time (Texas Time, CT)', font: {weight: 'bold'} } },
                             y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Temperature (F)'} },
                             y1: { type: 'linear', display: true, position: 'right', title: {display: true, text: 'Power Demand (MWh)'} }
                         }
@@ -79,6 +153,37 @@
                 });
             })
             .catch(error => console.error('Error fetching data:', error));
+
+        // 🚀 CSV 다운로드 기능 구현
+        function downloadCSV() {
+            if (globalData.length === 0) {
+                alert("Data is loading. Please try again in a few seconds.");
+                return;
+            }
+            
+            // 엑셀 첫 번째 줄(헤더) 만들기
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Time,Temperature(F),Electricity_Demand(MWh),Weather_Condition\n";
+            
+            // 데이터 한 줄씩 추가하기
+            globalData.forEach(row => {
+                const time = row.time;
+                const temp = row.temperature;
+                const power = row.electricity_demand_mwh;
+                const weather = row.weather_condition || "N/A";
+                
+                csvContent += `${time},${temp},${power},"${weather}"\n`;
+            });
+            
+            // 파일 생성 및 다운로드 실행
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "ERCOT_Grid_Weather_Data.csv"); // 파일명 지정
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
