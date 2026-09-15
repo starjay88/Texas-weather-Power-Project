@@ -20,15 +20,20 @@
     </div>
 
     <script>
-        // exact API path here (e.g., /api/forecast)
-        const apiUrl = 'https://texas-weather-power-project.onrender.com/api/weather'; 
+        // 1. 주소를 백엔드와 똑같이 /api/forecast 로 맞춤!
+        const apiUrl = 'https://texas-weather-power-project.onrender.com/api/forecast'; 
 
         fetch(apiUrl)
             .then(response => response.json())
-            .then(data => {
-                const labels = data.map(item => item.time);
-                const temps = data.map(item => item.temperature);
-                const powers = data.map(item => item.power_demand);
+            .then(responseData => { // 헷갈리지 않게 전체 상자 이름을 responseData로 바꿈
+                
+                // 2. 상자 안의 진짜 알맹이(data)만 쏙 빼냅니다!
+                const realData = responseData.data; 
+
+                // 3. 이제 알맹이(realData)를 쪼개서 차트에 넣습니다.
+                const labels = realData.map(item => item.time);
+                const temps = realData.map(item => item.temperature);
+                const powers = realData.map(item => item.power_demand);
 
                 const ctx = document.getElementById('myChart').getContext('2d');
                 new Chart(ctx, {
