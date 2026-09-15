@@ -10,27 +10,27 @@
         .chart-container { width: 80%; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
         #alertBanner { width: 80%; margin: 20px auto; padding: 15px; border-radius: 8px; font-size: 1.1em; display: none; }
         
-        /* 새로 추가된 스타일: 버튼과 메타데이터 표 */
-        .btn-download { background-color: #0056b3; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+        .btn-download { background-color: #0056b3; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-bottom: 10px;}
         .btn-download:hover { background-color: #004494; }
-        .metadata-table { width: 80%; margin: 30px auto; border-collapse: collapse; font-size: 0.9em; text-align: left; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;}
+        
+        /* 버튼과 표를 감싸는 하단 섹션 래퍼 */
+        .data-section { width: 80%; margin: 30px auto; text-align: right; }
+        
+        .metadata-table { width: 100%; border-collapse: collapse; font-size: 0.9em; text-align: left; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; margin-top: 15px;}
         .metadata-table th, .metadata-table td { padding: 12px; border-bottom: 1px solid #ddd; }
         .metadata-table th { background-color: #f8f9fa; font-weight: bold; color: #333;}
-        .footer-section { margin-top: 30px; font-size: 0.9em; color: #555; background: white; padding: 20px; width: 80%; margin: 30px auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+        
+        .footer-section { margin-top: 30px; font-size: 0.9em; color: #555; background: white; padding: 20px; width: 80%; margin: 30px auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center;}
         .footer-section a { color: #0056b3; text-decoration: none; font-weight: bold;}
         .footer-section a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <!-- 1. 제목 업그레이드 -->
     <h1>⚡ Texas ERCOT Grid & Weather Open Data Portal 🌡️</h1>
     <p>Real-time ERCOT grid stress and weather disaster monitoring system.</p>
-    
-    <!-- 2. CSV 다운로드 버튼 추가 -->
-    <button class="btn-download" onclick="downloadCSV()">📥 Download Raw Data (CSV)</button>
 
-    <!-- 재난 경보 배너 -->
+    <!-- 재난 경보 배너 (위치 고정) -->
     <div id="alertBanner"></div>
 
     <!-- 차트 -->
@@ -39,45 +39,50 @@
         <canvas id="myChart"></canvas>
     </div>
 
-    <!-- 3. 데이터 사전(Metadata) 표 추가 -->
-    <table class="metadata-table">
-        <thead>
-            <tr>
-                <th>Column Name</th>
-                <th>Description</th>
-                <th>Data Type</th>
-                <th>Unit</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Time</td>
-                <td>Timestamp of the recorded data</td>
-                <td>Datetime (ISO 8601)</td>
-                <td>UTC / CT</td>
-            </tr>
-            <tr>
-                <td>Temperature</td>
-                <td>Surface air temperature in Texas</td>
-                <td>Float</td>
-                <td>Fahrenheit (°F)</td>
-            </tr>
-            <tr>
-                <td>Electricity Demand</td>
-                <td>Total ERCOT power grid demand</td>
-                <td>Integer</td>
-                <td>Megawatt-hours (MWh)</td>
-            </tr>
-            <tr>
-                <td>Weather Condition</td>
-                <td>Short text description of weather (e.g., Mostly Clear)</td>
-                <td>String</td>
-                <td>-</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- 버튼과 데이터 표가 모여있는 하단 구역 -->
+    <div class="data-section">
+        <!-- 📥 CSV 다운로드 버튼을 여기로 내렸습니다 -->
+        <button class="btn-download" onclick="downloadCSV()">📥 Download Raw Data (CSV)</button>
 
-    <!-- 4. 출처 및 API 개발자 문서(Swagger) 링크 추가 -->
+        <table class="metadata-table">
+            <thead>
+                <tr>
+                    <th>Column Name</th>
+                    <th>Description</th>
+                    <th>Data Type</th>
+                    <th>Unit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Time</td>
+                    <td>Timestamp of the recorded data</td>
+                    <td>Datetime (ISO 8601)</td>
+                    <td>UTC / CT</td>
+                </tr>
+                <tr>
+                    <td>Temperature</td>
+                    <td>Surface air temperature in Texas</td>
+                    <td>Float</td>
+                    <td>Fahrenheit (°F)</td>
+                </tr>
+                <tr>
+                    <td>Electricity Demand</td>
+                    <td>Total ERCOT power grid demand</td>
+                    <td>Integer</td>
+                    <td>Megawatt-hours (MWh)</td>
+                </tr>
+                <tr>
+                    <td>Weather Condition</td>
+                    <td>Short text description of weather (e.g., Mostly Clear)</td>
+                    <td>String</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 출처 및 API 개발자 문서 링크 -->
     <div class="footer-section">
         <p style="margin-bottom: 15px;"><strong>📊 Data Sources & Developer Tools</strong></p>
         <p>☁️ Weather: <a href="https://www.weather.gov/documentation/services-web-api" target="_blank">National Weather Service (NWS) API</a></p>
@@ -88,13 +93,13 @@
 
     <script>
         const apiUrl = 'https://texas-weather-power-project.onrender.com/api/forecast'; 
-        let globalData = []; // CSV 다운로드를 위해 데이터를 임시 저장할 공간
+        let globalData = []; 
 
         fetch(apiUrl)
             .then(response => response.json())
             .then(responseData => {
                 const realData = responseData.data; 
-                globalData = realData; // 데이터를 변수에 저장해둡니다.
+                globalData = realData; 
 
                 const labels = realData.map(item => {
                     const dt = new Date(item.time); 
@@ -106,7 +111,7 @@
                 const temps = realData.map(item => item.temperature);
                 const powers = realData.map(item => item.electricity_demand_mwh);
 
-                // 재난 감지 로직
+                // 텍사스 현실 패치 적용된 재난 감지 로직
                 const maxTemp = Math.max(...temps);
                 const minTemp = Math.min(...temps);
                 const maxPower = Math.max(...powers);
@@ -114,24 +119,26 @@
                 
                 alertBanner.style.display = 'block';
 
-                if (maxTemp >= 98 || minTemp <= 32) {
+                if (maxTemp >= 105 || minTemp <= 25) {
+                    // 105도 이상 폭염 또는 25도 이하 한파
                     alertBanner.style.backgroundColor = '#ffebee';
                     alertBanner.style.color = '#c62828';
                     alertBanner.style.border = '2px solid #c62828';
                     alertBanner.innerHTML = `🚨 <strong>DISASTER WARNING:</strong> Extreme weather detected (Peak: ${maxTemp}°F / Low: ${minTemp}°F). High risk of ERCOT grid overload!`;
-                } else if (maxPower >= 80000) {
+                } else if (maxPower >= 85000) {
+                    // 기온은 애매하지만 전력 수요가 ERCOT 한계치(85,000 MWh)에 도달할 때
                     alertBanner.style.backgroundColor = '#fff3e0';
                     alertBanner.style.color = '#e65100';
                     alertBanner.style.border = '2px solid #e65100';
-                    alertBanner.innerHTML = `⚠️ <strong>GRID STRESS ALERT:</strong> High power demand anticipated (${maxPower.toLocaleString()} MWh). Grid is under heavy load.`;
+                    alertBanner.innerHTML = `⚠️ <strong>GRID STRESS ALERT:</strong> High power demand anticipated (${maxPower.toLocaleString()} MWh). Grid is operating near maximum capacity.`;
                 } else {
+                    // 평화로운(?) 텍사스 날씨
                     alertBanner.style.backgroundColor = '#e8f5e9';
                     alertBanner.style.color = '#2e7d32';
                     alertBanner.style.border = '2px solid #2e7d32';
-                    alertBanner.innerHTML = `✅ <strong>SYSTEM NORMAL:</strong> Weather and ERCOT power grid conditions are currently stable.`;
+                    alertBanner.innerHTML = `✅ <strong>SYSTEM NORMAL:</strong> Weather (Peak: ${maxTemp}°F) and ERCOT power grid conditions are currently stable.`;
                 }
 
-                // 차트 렌더링
                 const ctx = document.getElementById('myChart').getContext('2d');
                 new Chart(ctx, {
                     type: 'line',
@@ -154,18 +161,16 @@
             })
             .catch(error => console.error('Error fetching data:', error));
 
-        // 🚀 CSV 다운로드 기능 구현
+        // CSV 다운로드 기능
         function downloadCSV() {
             if (globalData.length === 0) {
                 alert("Data is loading. Please try again in a few seconds.");
                 return;
             }
             
-            // 엑셀 첫 번째 줄(헤더) 만들기
             let csvContent = "data:text/csv;charset=utf-8,";
             csvContent += "Time,Temperature(F),Electricity_Demand(MWh),Weather_Condition\n";
             
-            // 데이터 한 줄씩 추가하기
             globalData.forEach(row => {
                 const time = row.time;
                 const temp = row.temperature;
@@ -175,11 +180,10 @@
                 csvContent += `${time},${temp},${power},"${weather}"\n`;
             });
             
-            // 파일 생성 및 다운로드 실행
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "ERCOT_Grid_Weather_Data.csv"); // 파일명 지정
+            link.setAttribute("download", "ERCOT_Grid_Weather_Data.csv"); 
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
