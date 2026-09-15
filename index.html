@@ -6,44 +6,49 @@
     <title>Texas Weather & Grid Open Data Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9;}
-        .chart-container { width: 80%; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
-        #alertBanner { width: 80%; margin: 20px auto; padding: 15px; border-radius: 8px; font-size: 1.1em; display: none; }
+        /* 전체 폰트 및 배경색을 더 모던하게 변경 */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; background-color: #f1f5f9; color: #334155;}
         
-        .btn-download { background-color: #0056b3; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-bottom: 10px;}
-        .btn-download:hover { background-color: #004494; }
+        /* 공통 패널(흰색 배경 카드) 스타일 */
+        .panel { width: 80%; margin: 25px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; }
         
-        /* 버튼과 표를 감싸는 하단 섹션 래퍼 */
-        .data-section { width: 80%; margin: 30px auto; text-align: right; }
+        h1 { margin-bottom: 5px; color: #0f172a; font-size: 2.2em; letter-spacing: -0.5px;}
+        p.subtitle { color: #64748b; margin-top: 0; font-size: 1.1em; margin-bottom: 30px;}
         
-        .metadata-table { width: 100%; border-collapse: collapse; font-size: 0.9em; text-align: left; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; margin-top: 15px;}
-        .metadata-table th, .metadata-table td { padding: 12px; border-bottom: 1px solid #ddd; }
-        .metadata-table th { background-color: #f8f9fa; font-weight: bold; color: #333;}
+        #alertBanner { width: 80%; margin: 20px auto; padding: 15px 20px; border-radius: 8px; font-size: 1.1em; display: none; text-align: left; box-sizing: border-box;}
         
-        .footer-section { margin-top: 30px; font-size: 0.9em; color: #555; background: white; padding: 20px; width: 80%; margin: 30px auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center;}
-        .footer-section a { color: #0056b3; text-decoration: none; font-weight: bold;}
-        .footer-section a:hover { text-decoration: underline; }
+        .section-title { font-size: 1.25em; font-weight: 600; margin-top: 0; margin-bottom: 15px; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;}
+        
+        .metadata-table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+        .metadata-table th, .metadata-table td { padding: 14px 15px; border-bottom: 1px solid #e2e8f0; }
+        .metadata-table th { background-color: #f8fafc; font-weight: 600; color: #475569;}
+        
+        .btn-download { background-color: #3b82f6; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; font-weight: 600; transition: all 0.2s;}
+        .btn-download:hover { background-color: #2563eb; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);}
+        
+        .footer-links p { margin: 10px 0; font-size: 0.95em;}
+        .footer-links a { color: #3b82f6; text-decoration: none; font-weight: 600;}
+        .footer-links a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <h1>⚡ Texas ERCOT Grid & Weather Open Data Portal 🌡️</h1>
-    <p>Real-time ERCOT grid stress and weather disaster monitoring system.</p>
+    <!-- 깔끔해진 제목과 부제목 -->
+    <h1>Texas ERCOT Grid & Weather Open Data Portal</h1>
+    <p class="subtitle">Real-time ERCOT grid stress and weather disaster monitoring system.</p>
 
-    <!-- 재난 경보 배너 (위치 고정) -->
+    <!-- 재난 경보 배너 -->
     <div id="alertBanner"></div>
 
-    <!-- 차트 -->
-    <p style="color: gray; font-size: 0.85em; text-align: right; width: 80%; margin: 0 auto;">* All times are displayed in Texas Local Time (Central Time).</p>
-    <div class="chart-container">
+    <!-- 1. 차트 패널 -->
+    <div class="panel" style="text-align: center;">
+        <p style="color: #94a3b8; font-size: 0.85em; text-align: right; margin-top: 0;">* All times are displayed in Texas Local Time (Central Time).</p>
         <canvas id="myChart"></canvas>
     </div>
 
-    <!-- 버튼과 데이터 표가 모여있는 하단 구역 -->
-    <div class="data-section">
-        <!-- 📥 CSV 다운로드 버튼을 여기로 내렸습니다 -->
-        <button class="btn-download" onclick="downloadCSV()">📥 Download Raw Data (CSV)</button>
-
+    <!-- 2. 데이터 사전(컬럼 설명) 패널 -->
+    <div class="panel">
+        <h2 class="section-title">Data Dictionary</h2>
         <table class="metadata-table">
             <thead>
                 <tr>
@@ -57,7 +62,7 @@
                 <tr>
                     <td>Time</td>
                     <td>Timestamp of the recorded data</td>
-                    <td>Datetime (ISO 8601)</td>
+                    <td>Datetime</td>
                     <td>UTC / CT</td>
                 </tr>
                 <tr>
@@ -74,7 +79,7 @@
                 </tr>
                 <tr>
                     <td>Weather Condition</td>
-                    <td>Short text description of weather (e.g., Mostly Clear)</td>
+                    <td>Short text description of weather condition</td>
                     <td>String</td>
                     <td>-</td>
                 </tr>
@@ -82,13 +87,20 @@
         </table>
     </div>
 
-    <!-- 출처 및 API 개발자 문서 링크 -->
-    <div class="footer-section">
-        <p style="margin-bottom: 15px;"><strong>📊 Data Sources & Developer Tools</strong></p>
-        <p>☁️ Weather: <a href="https://www.weather.gov/documentation/services-web-api" target="_blank">National Weather Service (NWS) API</a></p>
-        <p>⚡ Power: <a href="https://www.eia.gov/opendata/" target="_blank">U.S. Energy Information Administration (EIA) API</a></p>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-        <p>👨‍💻 <strong>API Access:</strong> <a href="https://texas-weather-power-project.onrender.com/docs" target="_blank">Open Developer API Docs (Swagger UI)</a></p>
+    <!-- 3. Raw Data 다운로드 패널 (세련된 별도 구역으로 분리) -->
+    <div class="panel" style="text-align: center;">
+        <h2 class="section-title" style="text-align: left;">Raw Data Export</h2>
+        <p style="color: #64748b; font-size: 0.95em; margin-bottom: 20px;">Download the complete dataset used in this dashboard as a CSV file for independent offline analysis.</p>
+        <button class="btn-download" onclick="downloadCSV()">Download Raw Data (.csv)</button>
+    </div>
+
+    <!-- 4. 출처 및 API 링크 패널 -->
+    <div class="panel footer-links">
+        <h2 class="section-title">Data Sources & API Access</h2>
+        <p>Weather Data: <a href="https://www.weather.gov/documentation/services-web-api" target="_blank">National Weather Service (NWS) API</a></p>
+        <p>Power Demand: <a href="https://www.eia.gov/opendata/" target="_blank">U.S. Energy Information Administration (EIA) API</a></p>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+        <p>Developer API Docs: <a href="https://texas-weather-power-project.onrender.com/docs" target="_blank">Swagger UI Integration</a></p>
     </div>
 
     <script>
@@ -111,7 +123,7 @@
                 const temps = realData.map(item => item.temperature);
                 const powers = realData.map(item => item.electricity_demand_mwh);
 
-                // 텍사스 현실 패치 적용된 재난 감지 로직
+                // 재난 감지 로직
                 const maxTemp = Math.max(...temps);
                 const minTemp = Math.min(...temps);
                 const maxPower = Math.max(...powers);
@@ -120,23 +132,20 @@
                 alertBanner.style.display = 'block';
 
                 if (maxTemp >= 105 || minTemp <= 25) {
-                    // 105도 이상 폭염 또는 25도 이하 한파
-                    alertBanner.style.backgroundColor = '#ffebee';
-                    alertBanner.style.color = '#c62828';
-                    alertBanner.style.border = '2px solid #c62828';
-                    alertBanner.innerHTML = `🚨 <strong>DISASTER WARNING:</strong> Extreme weather detected (Peak: ${maxTemp}°F / Low: ${minTemp}°F). High risk of ERCOT grid overload!`;
+                    alertBanner.style.backgroundColor = '#fef2f2';
+                    alertBanner.style.color = '#b91c1c';
+                    alertBanner.style.border = '1px solid #fca5a5';
+                    alertBanner.innerHTML = `<strong>DISASTER WARNING:</strong> Extreme weather detected (Peak: ${maxTemp}°F / Low: ${minTemp}°F). High risk of ERCOT grid overload!`;
                 } else if (maxPower >= 85000) {
-                    // 기온은 애매하지만 전력 수요가 ERCOT 한계치(85,000 MWh)에 도달할 때
-                    alertBanner.style.backgroundColor = '#fff3e0';
-                    alertBanner.style.color = '#e65100';
-                    alertBanner.style.border = '2px solid #e65100';
-                    alertBanner.innerHTML = `⚠️ <strong>GRID STRESS ALERT:</strong> High power demand anticipated (${maxPower.toLocaleString()} MWh). Grid is operating near maximum capacity.`;
+                    alertBanner.style.backgroundColor = '#fffbeb';
+                    alertBanner.style.color = '#b45309';
+                    alertBanner.style.border = '1px solid #fcd34d';
+                    alertBanner.innerHTML = `<strong>GRID STRESS ALERT:</strong> High power demand anticipated (${maxPower.toLocaleString()} MWh). Grid is operating near maximum capacity.`;
                 } else {
-                    // 평화로운(?) 텍사스 날씨
-                    alertBanner.style.backgroundColor = '#e8f5e9';
-                    alertBanner.style.color = '#2e7d32';
-                    alertBanner.style.border = '2px solid #2e7d32';
-                    alertBanner.innerHTML = `✅ <strong>SYSTEM NORMAL:</strong> Weather (Peak: ${maxTemp}°F) and ERCOT power grid conditions are currently stable.`;
+                    alertBanner.style.backgroundColor = '#f0fdf4';
+                    alertBanner.style.color = '#15803d';
+                    alertBanner.style.border = '1px solid #86efac';
+                    alertBanner.innerHTML = `<strong>SYSTEM NORMAL:</strong> Weather (Peak: ${maxTemp}°F) and ERCOT power grid conditions are currently stable.`;
                 }
 
                 const ctx = document.getElementById('myChart').getContext('2d');
@@ -145,8 +154,8 @@
                     data: {
                         labels: labels,
                         datasets: [
-                            { label: 'Temperature (F)', data: temps, borderColor: 'red', yAxisID: 'y' },
-                            { label: 'Power Demand (MWh)', data: powers, borderColor: 'blue', yAxisID: 'y1' }
+                            { label: 'Temperature (F)', data: temps, borderColor: '#ef4444', backgroundColor: '#ef4444', yAxisID: 'y' },
+                            { label: 'Power Demand (MWh)', data: powers, borderColor: '#3b82f6', backgroundColor: '#3b82f6', yAxisID: 'y1' }
                         ]
                     },
                     options: {
