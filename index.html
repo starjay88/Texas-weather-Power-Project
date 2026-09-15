@@ -33,7 +33,7 @@
                 // 3. 이제 알맹이(realData)를 쪼개서 차트에 넣습니다.
                 const labels = realData.map(item => item.time);
                 const temps = realData.map(item => item.temperature);
-                const powers = realData.map(item => item.power_demand);
+                const powers = realData.map(item => item.electricity_demand_mwh);
 
                 const ctx = document.getElementById('myChart').getContext('2d');
                 new Chart(ctx, {
