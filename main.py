@@ -12,6 +12,19 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI()
+
+#------------------------------------------------------------------------
+# CORS 설정: 모든 프론트엔드 웹사이트에서 접근 허용
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 프론트엔드 웹사이트에서 접근 허용
+    allow_credentials=True,
+    allow_methods=["*"],  # GET, POST 등 모든 요청 허용
+    allow_headers=["*"],
+)
+
 #------------------------------------------------------------------------
 # 기본 환영 주소
 @app.get("/")

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texas Weather & Power Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9;}
+        .chart-container { width: 80%; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+    </style>
+</head>
+<body>
+
+    <h1>⚡ Texas Weather & Power Demand Dashboard 🌡️</h1>
+    <p>Real-time correlation between temperature and power demand.</p>
+    <p style="color: gray; font-size: 0.9em;">* All times are displayed in Texas Local Time (Central Time).</p>
+
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    #-----data source-----#
+    <div style="margin-top: 30px; font-size: 0.85em; color: #777;">
+        <p><strong>Data Sources:</strong></p>
+        <p>Weather data provided by the <a href="https://www.weather.gov/documentation/services-web-api" target="_blank" style="color: #555;">National Weather Service (NWS) API</a>.</p>
+        <p>Power demand data provided by the <a href="https://www.eia.gov/opendata/" target="_blank" style="color: #555;">U.S. Energy Information Administration (EIA) API</a>.</p>
+    </div>
+
+    <script>
+        const apiUrl = 'https://texas-weather-power-project.onrender.com/api/forecast'; 
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(responseData => {
+                const realData = responseData.data; 
+
+                // 3. 시간 다듬기 (어디서 접속하든 무조건 텍사스 시간으로 고정!)
+                const labels = realData.map(item => {
+                    const dt = new Date(item.time); 
+                    return dt.toLocaleString('en-US', {
+                        timeZone: 'America/Chicago', // 텍사스 시간대 강제 적용
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false // 24시간제 표시
+                    });
+                });
+                
+                const temps = realData.map(item => item.temperature);
+                const powers = realData.map(item => item.electricity_demand_mwh);
+
+                const ctx = document.getElementById('myChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Temperature (F)', data: temps, borderColor: 'red', yAxisID: 'y' },
+                            { label: 'Power Demand (MWh)', data: powers, borderColor: 'blue', yAxisID: 'y1' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            // X축에 텍사스 시간 기준이라는 제목표 추가
+                            x: { 
+                                display: true, 
+                                title: { display: true, text: 'Time (Texas Time, CT)', font: {weight: 'bold'} } 
+                            },
+                            y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Temperature (F)'} },
+                            y1: { type: 'linear', display: true, position: 'right', title: {display: true, text: 'Power Demand (MWh)'} }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+</body>
+</html>
