@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Texas Weather & Grid Open Data Portal</title>
+    <!-- 탭 제목 간소화 -->
+    <title>ERCOT Grid & Weather Monitor</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 전체 폰트 및 배경색을 더 모던하게 변경 */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; background-color: #f1f5f9; color: #334155;}
+        /* 배경색을 더 고급스러운 슬레이트 블루/그레이 톤으로 변경 */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; background-color: #ebf0f4; color: #334155;}
         
-        /* 공통 패널(흰색 배경 카드) 스타일 */
-        .panel { width: 80%; margin: 25px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; }
+        .panel { width: 80%; margin: 25px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-align: left; }
         
         h1 { margin-bottom: 5px; color: #0f172a; font-size: 2.2em; letter-spacing: -0.5px;}
         p.subtitle { color: #64748b; margin-top: 0; font-size: 1.1em; margin-bottom: 30px;}
@@ -33,20 +33,20 @@
 </head>
 <body>
 
-    <!-- 깔끔해진 제목과 부제목 -->
-    <h1>Texas ERCOT Grid & Weather Open Data Portal</h1>
-    <p class="subtitle">Real-time ERCOT grid stress and weather disaster monitoring system.</p>
+    <!-- 직관적이고 군더더기 없는 제목으로 변경 -->
+    <h1>ERCOT Grid & Weather Monitor</h1>
+    <p class="subtitle">Real-time correlation analysis between Texas surface temperature and power demand.</p>
 
     <!-- 재난 경보 배너 -->
     <div id="alertBanner"></div>
 
-    <!-- 1. 차트 패널 -->
+    <!-- 차트 패널 -->
     <div class="panel" style="text-align: center;">
         <p style="color: #94a3b8; font-size: 0.85em; text-align: right; margin-top: 0;">* All times are displayed in Texas Local Time (Central Time).</p>
         <canvas id="myChart"></canvas>
     </div>
 
-    <!-- 2. 데이터 사전(컬럼 설명) 패널 -->
+    <!-- 데이터 사전(컬럼 설명) 패널 -->
     <div class="panel">
         <h2 class="section-title">Data Dictionary</h2>
         <table class="metadata-table">
@@ -87,14 +87,14 @@
         </table>
     </div>
 
-    <!-- 3. Raw Data 다운로드 패널 (세련된 별도 구역으로 분리) -->
+    <!-- Raw Data 다운로드 패널 -->
     <div class="panel" style="text-align: center;">
         <h2 class="section-title" style="text-align: left;">Raw Data Export</h2>
         <p style="color: #64748b; font-size: 0.95em; margin-bottom: 20px;">Download the complete dataset used in this dashboard as a CSV file for independent offline analysis.</p>
         <button class="btn-download" onclick="downloadCSV()">Download Raw Data (.csv)</button>
     </div>
 
-    <!-- 4. 출처 및 API 링크 패널 -->
+    <!-- 출처 및 API 링크 패널 -->
     <div class="panel footer-links">
         <h2 class="section-title">Data Sources & API Access</h2>
         <p>Weather Data: <a href="https://www.weather.gov/documentation/services-web-api" target="_blank">National Weather Service (NWS) API</a></p>
@@ -123,7 +123,6 @@
                 const temps = realData.map(item => item.temperature);
                 const powers = realData.map(item => item.electricity_demand_mwh);
 
-                // 재난 감지 로직
                 const maxTemp = Math.max(...temps);
                 const minTemp = Math.min(...temps);
                 const maxPower = Math.max(...powers);
@@ -161,16 +160,29 @@
                     options: {
                         responsive: true,
                         scales: {
-                            x: { display: true, title: { display: true, text: 'Time (Texas Time, CT)', font: {weight: 'bold'} } },
-                            y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Temperature (F)'} },
-                            y1: { type: 'linear', display: true, position: 'right', title: {display: true, text: 'Power Demand (MWh)'} }
+                            x: { 
+                                display: true, 
+                                title: { display: true, text: 'Time (Texas Time, CT)', font: {weight: 'bold'} } 
+                            },
+                            // 온도 Y축 (20도 ~ 115도로 범위 고정)
+                            y: { 
+                                type: 'linear', display: true, position: 'left', 
+                                min: 20, max: 115,
+                                title: {display: true, text: 'Temperature (°F)'} 
+                            },
+                            // 전력량 Y축 (30,000 ~ 90,000으로 범위 고정) 및 겹치는 선 제거
+                            y1: { 
+                                type: 'linear', display: true, position: 'right', 
+                                min: 30000, max: 90000,
+                                title: {display: true, text: 'Power Demand (MWh)'},
+                                grid: { drawOnChartArea: false } 
+                            }
                         }
                     }
                 });
             })
             .catch(error => console.error('Error fetching data:', error));
 
-        // CSV 다운로드 기능
         function downloadCSV() {
             if (globalData.length === 0) {
                 alert("Data is loading. Please try again in a few seconds.");
