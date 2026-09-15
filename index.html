@@ -20,7 +20,7 @@
         <canvas id="myChart"></canvas>
     </div>
 
-    #-----data source-----#
+    <!-- 데이터 출처 명시 -->
     <div style="margin-top: 30px; font-size: 0.85em; color: #777;">
         <p><strong>Data Sources:</strong></p>
         <p>Weather data provided by the <a href="https://www.weather.gov/documentation/services-web-api" target="_blank" style="color: #555;">National Weather Service (NWS) API</a>.</p>
@@ -28,29 +28,33 @@
     </div>
 
     <script>
+        // 1. 정확한 백엔드 API 주소
         const apiUrl = 'https://texas-weather-power-project.onrender.com/api/forecast'; 
 
         fetch(apiUrl)
             .then(response => response.json())
             .then(responseData => {
+                // 2. 포장지(data) 한 겹 벗기기
                 const realData = responseData.data; 
 
                 // 3. 시간 다듬기 (어디서 접속하든 무조건 텍사스 시간으로 고정!)
                 const labels = realData.map(item => {
                     const dt = new Date(item.time); 
                     return dt.toLocaleString('en-US', {
-                        timeZone: 'America/Chicago', // 텍사스 시간대 강제 적용
+                        timeZone: 'America/Chicago',
                         month: 'numeric',
                         day: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit',
-                        hour12: false // 24시간제 표시
+                        hour12: false
                     });
                 });
                 
+                // 4. 온도와 전력 데이터 (DB 컬럼 이름 정확히 매칭)
                 const temps = realData.map(item => item.temperature);
                 const powers = realData.map(item => item.electricity_demand_mwh);
 
+                // 5. 차트 그리기
                 const ctx = document.getElementById('myChart').getContext('2d');
                 new Chart(ctx, {
                     type: 'line',
@@ -64,7 +68,6 @@
                     options: {
                         responsive: true,
                         scales: {
-                            // X축에 텍사스 시간 기준이라는 제목표 추가
                             x: { 
                                 display: true, 
                                 title: { display: true, text: 'Time (Texas Time, CT)', font: {weight: 'bold'} } 
