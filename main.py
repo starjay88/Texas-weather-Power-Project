@@ -29,7 +29,7 @@ app.add_middleware(
 # 기본 환영 주소
 @app.get("/")
 def read_root():
-    return {"message": "텍사스 기상 및 전력 API 서버입니다."}
+    return {"message": "Texas ERCOT Grid & Weather API Server is running."}
 
 # 2. 진짜 데이터를 내어주는 새로운 창구 만들기!
 @app.get("/api/forecast")
