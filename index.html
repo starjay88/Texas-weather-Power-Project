@@ -6,24 +6,21 @@
     <title>ERCOT Grid & Weather Monitor</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 1. 아주 은은하게 푸른빛이 도는 고급스러운 배경색으로 변경 */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; background-color: #e4edf8; color: #334155;}
         
         h1 { margin-bottom: 5px; color: #0f172a; font-size: 2.2em; letter-spacing: -0.5px;}
         p.subtitle { color: #64748b; margin-top: 0; font-size: 1.1em; margin-bottom: 25px;}
         
-        /* 2. 최상단 KPI 요약 카드 스타일 */
         .kpi-container { width: 80%; margin: 0 auto 25px auto; display: flex; gap: 20px; justify-content: space-between; }
         .kpi-card { flex: 1; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); text-align: center; border-top: 4px solid #cbd5e1;}
-        .kpi-card:nth-child(1) { border-top-color: #ef4444; } /* 온도 카드: 빨간색 포인트 */
-        .kpi-card:nth-child(2) { border-top-color: #3b82f6; } /* 전력 카드: 파란색 포인트 */
-        .kpi-card:nth-child(3) { border-top-color: #10b981; } /* 상태 카드: 초록/주황/빨강 포인트 */
+        .kpi-card:nth-child(1) { border-top-color: #ef4444; } 
+        .kpi-card:nth-child(2) { border-top-color: #3b82f6; } 
+        .kpi-card:nth-child(3) { border-top-color: #10b981; } 
         
         .kpi-title { font-size: 0.85em; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;}
         .kpi-value { font-size: 1.9em; font-weight: bold; color: #0f172a; }
         .kpi-desc { font-size: 0.9em; color: #94a3b8; margin-top: 5px; font-weight: 500;}
 
-        /* 공통 패널 스타일 */
         .panel { width: 80%; margin: 25px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); text-align: left; }
         #alertBanner { width: 80%; margin: 0 auto 25px auto; padding: 15px 20px; border-radius: 8px; font-size: 1.1em; display: none; text-align: left; box-sizing: border-box;}
         
@@ -46,10 +43,8 @@
     <h1>ERCOT Grid & Weather Monitor</h1>
     <p class="subtitle">Real-time correlation analysis between Texas surface temperature and power demand.</p>
 
-    <!-- 재난 경보 배너 -->
     <div id="alertBanner"></div>
 
-    <!-- 💡 새로 추가된 KPI 요약 카드 -->
     <div class="kpi-container" id="kpiContainer" style="display: none;">
         <div class="kpi-card">
             <div class="kpi-title">Current Temp</div>
@@ -62,19 +57,18 @@
             <div class="kpi-desc">Real-time ERCOT Load</div>
         </div>
         <div class="kpi-card" id="kpiStatusCard">
-            <div class="kpi-title">Grid Status</div>
+            <!-- 💡 헷갈리지 않도록 텍스트를 좀 더 명확하게 수정 -->
+            <div class="kpi-title">Forecasted Grid Risk</div>
             <div class="kpi-value" id="kpiStatus">Normal</div>
             <div class="kpi-desc" id="kpiPeak">System is stable</div>
         </div>
     </div>
 
-    <!-- 차트 패널 -->
     <div class="panel" style="text-align: center;">
         <p style="color: #94a3b8; font-size: 0.85em; text-align: right; margin-top: 0;">* All times are displayed in Texas Local Time (Central Time).</p>
         <canvas id="myChart"></canvas>
     </div>
 
-    <!-- 데이터 사전(컬럼 설명) 패널 -->
     <div class="panel">
         <h2 class="section-title">Data Dictionary</h2>
         <table class="metadata-table">
@@ -115,14 +109,12 @@
         </table>
     </div>
 
-    <!-- Raw Data 다운로드 패널 -->
     <div class="panel" style="text-align: center;">
         <h2 class="section-title" style="text-align: left;">Raw Data Export</h2>
         <p style="color: #64748b; font-size: 0.95em; margin-bottom: 20px;">Download the complete dataset used in this dashboard as a CSV file for independent offline analysis.</p>
         <button class="btn-download" onclick="downloadCSV()">Download Raw Data (.csv)</button>
     </div>
 
-    <!-- 출처 및 API 링크 패널 -->
     <div class="panel footer-links">
         <h2 class="section-title">Data Sources & API Access</h2>
         <p>Weather Data: <a href="https://www.weather.gov/documentation/services-web-api" target="_blank">National Weather Service (NWS) API</a></p>
@@ -150,16 +142,14 @@
                 
                 const temps = realData.map(item => item.temperature);
                 const powers = realData.map(item => item.electricity_demand_mwh);
-                const weathers = realData.map(item => item.weather_condition || "N/A"); // 툴팁용 날씨 데이터
+                const weathers = realData.map(item => item.weather_condition || "N/A"); 
 
-                // 💡 KPI 카드 데이터 채우기 (가장 최근 데이터 기준)
-                const currentData = realData[0]; // 보통 인덱스 0이 가장 최근(또는 현재) 데이터입니다.
+                const currentData = realData[0]; 
                 document.getElementById('kpiContainer').style.display = 'flex';
                 document.getElementById('kpiTemp').innerText = `${currentData.temperature} °F`;
                 document.getElementById('kpiWeather').innerText = currentData.weather_condition || "Data Available";
                 document.getElementById('kpiDemand').innerText = `${currentData.electricity_demand_mwh.toLocaleString()} MWh`;
 
-                // 재난 감지 로직 및 카드 색상 변경
                 const maxTemp = Math.max(...temps);
                 const minTemp = Math.min(...temps);
                 const maxPower = Math.max(...powers);
@@ -174,32 +164,33 @@
                     alertBanner.style.backgroundColor = '#fef2f2';
                     alertBanner.style.color = '#b91c1c';
                     alertBanner.style.border = '1px solid #fca5a5';
-                    alertBanner.innerHTML = `<strong>DISASTER WARNING:</strong> Extreme weather detected (Peak: ${maxTemp}°F / Low: ${minTemp}°F). High risk of ERCOT grid overload!`;
+                    alertBanner.innerHTML = `<strong>DISASTER WARNING:</strong> Extreme weather detected in forecast (Peak: ${maxTemp}°F / Low: ${minTemp}°F). High risk of ERCOT grid overload!`;
                     
                     statusCard.style.borderTopColor = '#ef4444';
                     statusValue.style.color = '#ef4444';
                     statusValue.innerText = 'WARNING';
-                    statusPeak.innerText = 'Extreme Weather Risk';
+                    statusPeak.innerText = 'Extreme Weather Forecasted';
                 } else if (maxPower >= 85000) {
                     alertBanner.style.backgroundColor = '#fffbeb';
                     alertBanner.style.color = '#b45309';
                     alertBanner.style.border = '1px solid #fcd34d';
-                    alertBanner.innerHTML = `<strong>GRID STRESS ALERT:</strong> High power demand anticipated (${maxPower.toLocaleString()} MWh). Grid is operating near maximum capacity.`;
+                    alertBanner.innerHTML = `<strong>GRID STRESS ALERT:</strong> High power demand anticipated (${maxPower.toLocaleString()} MWh). Grid will operate near maximum capacity.`;
                     
                     statusCard.style.borderTopColor = '#f59e0b';
                     statusValue.style.color = '#f59e0b';
                     statusValue.innerText = 'STRESS';
-                    statusPeak.innerText = `Peak: ${maxPower.toLocaleString()} MWh`;
+                    // 💡 언제 이 최대치가 오는지 명확하게 표시
+                    statusPeak.innerText = `Expected Peak: ${maxPower.toLocaleString()} MWh`;
                 } else {
                     alertBanner.style.backgroundColor = '#f0fdf4';
                     alertBanner.style.color = '#15803d';
                     alertBanner.style.border = '1px solid #86efac';
-                    alertBanner.innerHTML = `<strong>SYSTEM NORMAL:</strong> Weather (Peak: ${maxTemp}°F) and ERCOT power grid conditions are currently stable.`;
+                    alertBanner.innerHTML = `<strong>SYSTEM NORMAL:</strong> Weather (Peak: ${maxTemp}°F) and ERCOT power grid forecast are currently stable.`;
                     
                     statusCard.style.borderTopColor = '#10b981';
                     statusValue.style.color = '#10b981';
                     statusValue.innerText = 'NORMAL';
-                    statusPeak.innerText = `Peak: ${maxPower.toLocaleString()} MWh`;
+                    statusPeak.innerText = `Forecasted Peak: ${maxPower.toLocaleString()} MWh`;
                 }
 
                 const ctx = document.getElementById('myChart').getContext('2d');
@@ -215,7 +206,6 @@
                     options: {
                         responsive: true,
                         plugins: {
-                            // 💡 스마트 툴팁 추가: 마우스를 올리면 날씨 텍스트가 뜹니다!
                             tooltip: {
                                 callbacks: {
                                     afterBody: function(context) {
@@ -227,16 +217,16 @@
                         },
                         scales: {
                             x: { display: true, title: { display: true, text: 'Time (Texas Time, CT)', font: {weight: 'bold'} } },
-                            // 💡 온도 축 120으로 올리고 10단위로 간격 완벽 고정
                             y: { 
                                 type: 'linear', display: true, position: 'left', 
                                 min: 20, max: 120, 
                                 ticks: { stepSize: 10 },
                                 title: {display: true, text: 'Temperature (°F)'} 
                             },
+                            // 💡 텍사스 현실에 맞게 최대치를 100,000 MWh(100K)로 변경!
                             y1: { 
                                 type: 'linear', display: true, position: 'right', 
-                                min: 30000, max: 90000,
+                                min: 30000, max: 100000, 
                                 ticks: { stepSize: 10000 },
                                 title: {display: true, text: 'Power Demand (MWh)'},
                                 grid: { drawOnChartArea: false } 
