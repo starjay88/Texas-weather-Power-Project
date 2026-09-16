@@ -1,6 +1,7 @@
 # Texas ERCOT Grid & Weather Open Data Portal
 
-# Dashboard Link: https://starjay88.github.io/Texas-weather-Power-Project/
+## Dashboard Link:
+https://starjay88.github.io/Texas-weather-Power-Project/
 
 ## Project Overview
 A real-time ETL pipeline and open data monitoring dashboard designed to analyze the correlation between Texas surface temperatures and ERCOT (Electric Reliability Council of Texas) power grid demand. This system proactively identifies potential grid stress and extreme weather events to forecast power outage risks.
